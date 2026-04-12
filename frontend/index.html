@@ -4,93 +4,96 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wardrobe Concierge</title>
-  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
 <aside class="sidebar">
 
+  <!-- Brand -->
   <div class="brand">
-    <span class="brand-icon">🧥</span>
-    <div class="brand-text">
-      <h1>Wardrobe Concierge</h1>
-      <p>Your personal AI stylist</p>
+    <div class="brand-mark">W</div>
+    <div class="brand-copy">
+      <div class="brand-name">Wardrobe Concierge</div>
+      <div class="brand-sub">personal AI stylist</div>
     </div>
   </div>
 
   <!-- Occasion -->
-  <div>
-    <div class="section-label">Occasion</div>
-    <div class="occasion-grid" id="occasionGrid">
+  <section class="sidebar-section">
+    <div class="section-heading">Occasion</div>
+    <div class="chip-grid" id="occasionGrid">
       <button class="chip" data-occasion="dinner">Dinner</button>
       <button class="chip" data-occasion="job-interview">Interview</button>
       <button class="chip" data-occasion="work">Work</button>
       <button class="chip" data-occasion="casual">Casual</button>
       <button class="chip" data-occasion="gym">Gym</button>
       <button class="chip" data-occasion="wedding-guest">Wedding</button>
-      <button class="chip" data-occasion="smart-casual">Smart Casual</button>
+      <button class="chip" data-occasion="smart-casual">Smart casual</button>
       <button class="chip" data-occasion="beach">Beach</button>
     </div>
-  </div>
+  </section>
 
-  <!-- Details -->
-  <div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="section-label">Details</div>
-
-    <div class="field">
-      <label class="section-label" style="margin-bottom:0">City (for weather)</label>
-      <input type="text" id="cityInput" placeholder="London, Istanbul..." />
+  <!-- Context -->
+  <section class="sidebar-section">
+    <div class="section-heading">Context</div>
+    <div class="context-fields">
+      <div class="field">
+        <label class="field-label" for="cityInput">City</label>
+        <input type="text" id="cityInput" placeholder="London, Istanbul..." autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="dressCodeInput">Dress code</label>
+        <select id="dressCodeInput">
+          <option value="">Any</option>
+          <option value="casual">Casual</option>
+          <option value="smart casual">Smart casual</option>
+          <option value="business casual">Business casual</option>
+          <option value="smart">Smart</option>
+          <option value="formal">Formal</option>
+          <option value="black tie optional">Black tie optional</option>
+          <option value="black tie">Black tie</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="whoWithInput">Who with</label>
+        <input type="text" id="whoWithInput" placeholder="Partner, colleagues..." autocomplete="off" />
+      </div>
     </div>
-
-    <div class="field">
-      <label class="section-label" style="margin-bottom:0">Dress code</label>
-      <select id="dressCodeInput">
-        <option value="">No specific dress code</option>
-        <option value="casual">Casual</option>
-        <option value="smart casual">Smart casual</option>
-        <option value="business casual">Business casual</option>
-        <option value="smart">Smart</option>
-        <option value="formal">Formal</option>
-        <option value="black tie optional">Black tie optional</option>
-        <option value="black tie">Black tie</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label class="section-label" style="margin-bottom:0">Who with?</label>
-      <input type="text" id="whoWithInput" placeholder="Partner, colleagues, family..." />
-    </div>
-  </div>
+  </section>
 
   <!-- Actions -->
-  <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto;">
-    <button class="submit-btn" id="submitBtn" onclick="app.submit()" disabled>
-      Build outfit
+  <div class="sidebar-footer">
+    <button class="btn-primary" id="submitBtn" onclick="app.submit()" disabled>
+      <span class="btn-label">Build outfit</span>
+      <span class="btn-spinner" hidden></span>
     </button>
-    <button class="reset-btn" onclick="app.resetMemory()">
-      Reset memory
-    </button>
+    <button class="btn-ghost" onclick="app.resetMemory()">Reset memory</button>
   </div>
 
 </aside>
 
-<!-- ── Main ─────────────────────────────────────────────────────────────── -->
 <main class="main">
-  <div class="messages" id="messages">
+  <div class="feed" id="messages">
 
-    <!-- Empty state -->
     <div class="empty-state" id="emptyState">
-      <div class="empty-icon">👔</div>
-      <h2>What are you dressing for?</h2>
-      <p>Select an occasion on the left, add optional context, and your AI stylist will build a complete outfit from your wardrobe.</p>
-      <div class="prompts">
-        <span class="prompt-chip" onclick="app.quickFill('smart casual dinner tonight', 'dinner')">Smart casual dinner tonight</span>
-        <span class="prompt-chip" onclick="app.quickFill('job interview at a law firm', 'job-interview')">Job interview at a law firm</span>
-        <span class="prompt-chip" onclick="app.quickFill('morning gym session', 'gym')">Morning gym session</span>
-        <span class="prompt-chip" onclick="app.quickFill('wedding guest, summer garden party', 'wedding-guest')">Wedding guest</span>
+      <div class="empty-mark">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 8a3 3 0 1 1 0 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M20 14s-12 6.5-12 11h24c0-4.5-12-11-12-11z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="20" y1="14" x2="20" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="empty-heading">What are you<br><em>dressing for?</em></h1>
+      <p class="empty-sub">Select an occasion, add context, and your AI stylist builds a complete outfit from your wardrobe.</p>
+      <div class="empty-prompts">
+        <button class="prompt-pill" onclick="app.quickFill('smart casual dinner tonight', 'dinner')">Smart casual dinner</button>
+        <button class="prompt-pill" onclick="app.quickFill('job interview at a law firm', 'job-interview')">Law firm interview</button>
+        <button class="prompt-pill" onclick="app.quickFill('morning gym session', 'gym')">Morning gym</button>
+        <button class="prompt-pill" onclick="app.quickFill('wedding guest, summer garden party', 'wedding-guest')">Summer wedding</button>
       </div>
     </div>
 
