@@ -1,0 +1,693 @@
+{
+  "run_at": "2026-04-11T23:05:13.275689",
+  "n_queries": 20,
+  "retrieval": [
+    {
+      "query": "job interview at a law firm, autumn morning, London 12\u00b0C, smart professional",
+      "occasion": "job-interview",
+      "formality": 4,
+      "ground_truth_ids": [
+        "item_001",
+        "item_028",
+        "item_037",
+        "item_046",
+        "item_048",
+        "item_018"
+      ],
+      "retrieved_ids_5": [
+        "item_038",
+        "item_049",
+        "item_041",
+        "item_040",
+        "item_021"
+      ],
+      "retrieved_ids_10": [
+        "item_038",
+        "item_049",
+        "item_041",
+        "item_040",
+        "item_021",
+        "item_018",
+        "item_019",
+        "item_001",
+        "item_027",
+        "item_010"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.333,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.069
+    },
+    {
+      "query": "tech startup interview, casual office vibe, spring 18\u00b0C",
+      "occasion": "job-interview",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_019",
+        "item_028",
+        "item_003",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_009",
+        "item_023",
+        "item_002",
+        "item_035",
+        "item_013"
+      ],
+      "retrieved_ids_10": [
+        "item_009",
+        "item_023",
+        "item_002",
+        "item_035",
+        "item_013",
+        "item_030",
+        "item_032",
+        "item_043",
+        "item_024",
+        "item_038"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "finance internship interview, winter, need to look polished",
+      "occasion": "job-interview",
+      "formality": 5,
+      "ground_truth_ids": [
+        "item_001",
+        "item_052",
+        "item_053",
+        "item_037",
+        "item_031",
+        "item_021"
+      ],
+      "retrieved_ids_5": [
+        "item_037",
+        "item_008",
+        "item_018",
+        "item_021",
+        "item_031"
+      ],
+      "retrieved_ids_10": [
+        "item_037",
+        "item_008",
+        "item_018",
+        "item_021",
+        "item_031",
+        "item_034",
+        "item_052",
+        "item_028",
+        "item_053",
+        "item_029"
+      ],
+      "recall_at_5": 0.5,
+      "recall_at_10": 0.833,
+      "precision_at_5": 0.6,
+      "avg_precision": 0.538
+    },
+    {
+      "query": "second-round interview, creative agency, smart-casual dress code, autumn",
+      "occasion": "job-interview",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_016",
+        "item_028",
+        "item_004",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_012",
+        "item_016",
+        "item_019",
+        "item_048",
+        "item_002"
+      ],
+      "retrieved_ids_10": [
+        "item_012",
+        "item_016",
+        "item_019",
+        "item_048",
+        "item_002",
+        "item_023",
+        "item_004",
+        "item_046",
+        "item_028",
+        "item_034"
+      ],
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.75,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.28
+    },
+    {
+      "query": "morning interview, cold and rainy, need coat, formality 4",
+      "occasion": "job-interview",
+      "formality": 4,
+      "ground_truth_ids": [
+        "item_001",
+        "item_037",
+        "item_046",
+        "item_031",
+        "item_018"
+      ],
+      "retrieved_ids_5": [
+        "item_056",
+        "item_004",
+        "item_018",
+        "item_010",
+        "item_021"
+      ],
+      "retrieved_ids_10": [
+        "item_056",
+        "item_004",
+        "item_018",
+        "item_010",
+        "item_021",
+        "item_003",
+        "item_001",
+        "item_008",
+        "item_015",
+        "item_028"
+      ],
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.4,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.124
+    },
+    {
+      "query": "remote video interview, smart casual, just top half visible",
+      "occasion": "job-interview",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_015",
+        "item_003"
+      ],
+      "retrieved_ids_5": [
+        "item_012",
+        "item_038",
+        "item_049",
+        "item_013",
+        "item_016"
+      ],
+      "retrieved_ids_10": [
+        "item_012",
+        "item_038",
+        "item_049",
+        "item_013",
+        "item_016",
+        "item_002",
+        "item_021",
+        "item_004",
+        "item_001",
+        "item_019"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "interview at consulting firm, strictly formal, winter afternoon",
+      "occasion": "job-interview",
+      "formality": 5,
+      "ground_truth_ids": [
+        "item_052",
+        "item_028",
+        "item_008",
+        "item_037",
+        "item_046",
+        "item_021"
+      ],
+      "retrieved_ids_5": [
+        "item_008",
+        "item_018",
+        "item_021",
+        "item_028",
+        "item_029"
+      ],
+      "retrieved_ids_10": [
+        "item_008",
+        "item_018",
+        "item_021",
+        "item_028",
+        "item_029",
+        "item_031",
+        "item_037",
+        "item_034",
+        "item_053",
+        "item_052"
+      ],
+      "recall_at_5": 0.5,
+      "recall_at_10": 0.833,
+      "precision_at_5": 0.6,
+      "avg_precision": 0.581
+    },
+    {
+      "query": "final round interview, fashion company, need to show personal style",
+      "occasion": "job-interview",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_058",
+        "item_010",
+        "item_022",
+        "item_034",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_046",
+        "item_012",
+        "item_003",
+        "item_009",
+        "item_004"
+      ],
+      "retrieved_ids_10": [
+        "item_046",
+        "item_012",
+        "item_003",
+        "item_009",
+        "item_004",
+        "item_021",
+        "item_023",
+        "item_008",
+        "item_002",
+        "item_018"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "smart casual dinner date, spring evening, 20\u00b0C, restaurant in the city",
+      "occasion": "dinner",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_001",
+        "item_019",
+        "item_048",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_038",
+        "item_017",
+        "item_027",
+        "item_024",
+        "item_030"
+      ],
+      "retrieved_ids_10": [
+        "item_038",
+        "item_017",
+        "item_027",
+        "item_024",
+        "item_030",
+        "item_002",
+        "item_043",
+        "item_045",
+        "item_016",
+        "item_041"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "formal dinner party, winter, suit required, 8\u00b0C outside",
+      "occasion": "dinner",
+      "formality": 5,
+      "ground_truth_ids": [
+        "item_008",
+        "item_037",
+        "item_031",
+        "item_054",
+        "item_021"
+      ],
+      "retrieved_ids_5": [
+        "item_031",
+        "item_018",
+        "item_021",
+        "item_037",
+        "item_053"
+      ],
+      "retrieved_ids_10": [
+        "item_031",
+        "item_018",
+        "item_021",
+        "item_037",
+        "item_053",
+        "item_052",
+        "item_034",
+        "item_029",
+        "item_008",
+        "item_028"
+      ],
+      "recall_at_5": 0.6,
+      "recall_at_10": 0.8,
+      "precision_at_5": 0.6,
+      "avg_precision": 0.572
+    },
+    {
+      "query": "casual dinner with friends, autumn, laid-back bistro, 15\u00b0C",
+      "occasion": "dinner",
+      "formality": 2,
+      "ground_truth_ids": [
+        "item_043",
+        "item_016",
+        "item_004"
+      ],
+      "retrieved_ids_5": [
+        "item_004",
+        "item_030",
+        "item_016",
+        "item_024",
+        "item_017"
+      ],
+      "retrieved_ids_10": [
+        "item_004",
+        "item_030",
+        "item_016",
+        "item_024",
+        "item_017",
+        "item_043",
+        "item_045",
+        "item_022",
+        "item_057",
+        "item_006"
+      ],
+      "recall_at_5": 0.667,
+      "recall_at_10": 1.0,
+      "precision_at_5": 0.4,
+      "avg_precision": 0.722
+    },
+    {
+      "query": "date night dinner, rooftop bar, warm summer evening 25\u00b0C",
+      "occasion": "dinner",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_054",
+        "item_045",
+        "item_008",
+        "item_027"
+      ],
+      "retrieved_ids_5": [
+        "item_024",
+        "item_043",
+        "item_002",
+        "item_027",
+        "item_006"
+      ],
+      "retrieved_ids_10": [
+        "item_024",
+        "item_043",
+        "item_002",
+        "item_027",
+        "item_006",
+        "item_003",
+        "item_022",
+        "item_013",
+        "item_038",
+        "item_010"
+      ],
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.25,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.062
+    },
+    {
+      "query": "dinner at a Michelin star restaurant, need to look elegant, autumn",
+      "occasion": "dinner",
+      "formality": 4,
+      "ground_truth_ids": [
+        "item_010",
+        "item_022",
+        "item_048",
+        "item_029",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_027",
+        "item_043",
+        "item_046",
+        "item_004",
+        "item_034"
+      ],
+      "retrieved_ids_10": [
+        "item_027",
+        "item_043",
+        "item_046",
+        "item_004",
+        "item_034",
+        "item_031",
+        "item_054",
+        "item_020",
+        "item_008",
+        "item_037"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "Sunday lunch, gastropub, relaxed smart casual, spring 16\u00b0C",
+      "occasion": "dinner",
+      "formality": 2,
+      "ground_truth_ids": [
+        "item_012",
+        "item_020",
+        "item_038"
+      ],
+      "retrieved_ids_5": [
+        "item_024",
+        "item_009",
+        "item_045",
+        "item_002",
+        "item_014"
+      ],
+      "retrieved_ids_10": [
+        "item_024",
+        "item_009",
+        "item_045",
+        "item_002",
+        "item_014",
+        "item_022",
+        "item_013",
+        "item_004",
+        "item_041",
+        "item_006"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "dinner party as a guest, festive winter atmosphere",
+      "occasion": "dinner",
+      "formality": 4,
+      "ground_truth_ids": [
+        "item_004",
+        "item_034",
+        "item_018",
+        "item_057",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_027",
+        "item_031",
+        "item_043",
+        "item_015",
+        "item_034"
+      ],
+      "retrieved_ids_10": [
+        "item_027",
+        "item_031",
+        "item_043",
+        "item_015",
+        "item_034",
+        "item_010",
+        "item_018",
+        "item_056",
+        "item_004",
+        "item_021"
+      ],
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.6,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.164
+    },
+    {
+      "query": "outdoor summer dinner, 28\u00b0C, dress code is smart-casual",
+      "occasion": "dinner",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_045",
+        "item_024",
+        "item_006"
+      ],
+      "retrieved_ids_5": [
+        "item_024",
+        "item_016",
+        "item_019",
+        "item_017",
+        "item_010"
+      ],
+      "retrieved_ids_10": [
+        "item_024",
+        "item_016",
+        "item_019",
+        "item_017",
+        "item_010",
+        "item_012",
+        "item_004",
+        "item_056",
+        "item_027",
+        "item_038"
+      ],
+      "recall_at_5": 0.333,
+      "recall_at_10": 0.333,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.333
+    },
+    {
+      "query": "regular office day, autumn, meetings in the morning, formality 3",
+      "occasion": "work",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_019",
+        "item_049",
+        "item_003",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_034",
+        "item_004",
+        "item_002",
+        "item_041",
+        "item_018"
+      ],
+      "retrieved_ids_10": [
+        "item_034",
+        "item_004",
+        "item_002",
+        "item_041",
+        "item_018",
+        "item_010",
+        "item_027",
+        "item_009",
+        "item_022",
+        "item_023"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.0
+    },
+    {
+      "query": "client presentation at work, need to look sharp, winter",
+      "occasion": "work",
+      "formality": 4,
+      "ground_truth_ids": [
+        "item_001",
+        "item_028",
+        "item_037",
+        "item_046",
+        "item_018"
+      ],
+      "retrieved_ids_5": [
+        "item_010",
+        "item_046",
+        "item_004",
+        "item_015",
+        "item_003"
+      ],
+      "retrieved_ids_10": [
+        "item_010",
+        "item_046",
+        "item_004",
+        "item_015",
+        "item_003",
+        "item_001",
+        "item_008",
+        "item_027",
+        "item_018",
+        "item_022"
+      ],
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.6,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.233
+    },
+    {
+      "query": "casual Friday at a creative office, spring, relaxed but professional",
+      "occasion": "work",
+      "formality": 2,
+      "ground_truth_ids": [
+        "item_002",
+        "item_023",
+        "item_036"
+      ],
+      "retrieved_ids_5": [
+        "item_009",
+        "item_055",
+        "item_013",
+        "item_002",
+        "item_016"
+      ],
+      "retrieved_ids_10": [
+        "item_009",
+        "item_055",
+        "item_013",
+        "item_002",
+        "item_016",
+        "item_044",
+        "item_024",
+        "item_023",
+        "item_027",
+        "item_045"
+      ],
+      "recall_at_5": 0.333,
+      "recall_at_10": 0.667,
+      "precision_at_5": 0.2,
+      "avg_precision": 0.167
+    },
+    {
+      "query": "hybrid work day, need an outfit that works for desk and after-work drinks",
+      "occasion": "work",
+      "formality": 3,
+      "ground_truth_ids": [
+        "item_021",
+        "item_015",
+        "item_058",
+        "item_040"
+      ],
+      "retrieved_ids_5": [
+        "item_023",
+        "item_004",
+        "item_001",
+        "item_031",
+        "item_010"
+      ],
+      "retrieved_ids_10": [
+        "item_023",
+        "item_004",
+        "item_001",
+        "item_031",
+        "item_010",
+        "item_028",
+        "item_018",
+        "item_032",
+        "item_021",
+        "item_056"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.25,
+      "precision_at_5": 0.0,
+      "avg_precision": 0.028
+    }
+  ],
+  "ragas": null
+}
