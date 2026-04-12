@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wardrobe Concierge</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" />
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+<aside class="sidebar">
+
+  <div class="brand">
+    <span class="brand-icon">🧥</span>
+    <div class="brand-text">
+      <h1>Wardrobe Concierge</h1>
+      <p>Your personal AI stylist</p>
+    </div>
+  </div>
+
+  <!-- Occasion -->
+  <div>
+    <div class="section-label">Occasion</div>
+    <div class="occasion-grid" id="occasionGrid">
+      <button class="chip" data-occasion="dinner">Dinner</button>
+      <button class="chip" data-occasion="job-interview">Interview</button>
+      <button class="chip" data-occasion="work">Work</button>
+      <button class="chip" data-occasion="casual">Casual</button>
+      <button class="chip" data-occasion="gym">Gym</button>
+      <button class="chip" data-occasion="wedding-guest">Wedding</button>
+      <button class="chip" data-occasion="smart-casual">Smart Casual</button>
+      <button class="chip" data-occasion="beach">Beach</button>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="section-label">Details</div>
+
+    <div class="field">
+      <label class="section-label" style="margin-bottom:0">City (for weather)</label>
+      <input type="text" id="cityInput" placeholder="London, Istanbul..." />
+    </div>
+
+    <div class="field">
+      <label class="section-label" style="margin-bottom:0">Dress code</label>
+      <select id="dressCodeInput">
+        <option value="">No specific dress code</option>
+        <option value="casual">Casual</option>
+        <option value="smart casual">Smart casual</option>
+        <option value="business casual">Business casual</option>
+        <option value="smart">Smart</option>
+        <option value="formal">Formal</option>
+        <option value="black tie optional">Black tie optional</option>
+        <option value="black tie">Black tie</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="section-label" style="margin-bottom:0">Who with?</label>
+      <input type="text" id="whoWithInput" placeholder="Partner, colleagues, family..." />
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto;">
+    <button class="submit-btn" id="submitBtn" onclick="app.submit()" disabled>
+      Build outfit
+    </button>
+    <button class="reset-btn" onclick="app.resetMemory()">
+      Reset memory
+    </button>
+  </div>
+
+</aside>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────── -->
+<main class="main">
+  <div class="messages" id="messages">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">👔</div>
+      <h2>What are you dressing for?</h2>
+      <p>Select an occasion on the left, add optional context, and your AI stylist will build a complete outfit from your wardrobe.</p>
+      <div class="prompts">
+        <span class="prompt-chip" onclick="app.quickFill('smart casual dinner tonight', 'dinner')">Smart casual dinner tonight</span>
+        <span class="prompt-chip" onclick="app.quickFill('job interview at a law firm', 'job-interview')">Job interview at a law firm</span>
+        <span class="prompt-chip" onclick="app.quickFill('morning gym session', 'gym')">Morning gym session</span>
+        <span class="prompt-chip" onclick="app.quickFill('wedding guest, summer garden party', 'wedding-guest')">Wedding guest</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
