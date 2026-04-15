@@ -53,6 +53,15 @@ class OutfitRequest(BaseModel):
     city: Optional[str] = None
     dress_code: Optional[str] = None
     who_with: Optional[str] = None
+    style_profile: Optional[dict] = None  # overrides persisted profile for this request
+
+
+class StyleProfileRequest(BaseModel):
+    gender: Optional[str] = None
+    style_notes: Optional[str] = None
+    fit_preferences: Optional[list[str]] = None
+    colour_preferences: Optional[list[str]] = None
+    avoid_styles: Optional[list[str]] = None
 
 
 class ApprovalRequest(BaseModel):
@@ -82,13 +91,14 @@ def request_outfit(req: OutfitRequest):
     config = {"configurable": {"thread_id": session_id}}
 
     initial_state = {
-        "user_id":    req.user_id,
-        "raw_query":  req.raw_query,
-        "session_id": session_id,
-        "city":       req.city or "",
-        "dress_code": req.dress_code,
-        "who_with":   req.who_with,
-        "retry_count": 0,
+        "user_id":       req.user_id,
+        "raw_query":     req.raw_query,
+        "session_id":    session_id,
+        "city":          req.city or "",
+        "dress_code":    req.dress_code,
+        "who_with":      req.who_with,
+        "style_profile": req.style_profile,   # None if not provided
+        "retry_count":   0,
     }
 
     try:
@@ -154,6 +164,24 @@ def approve_outfit(req: ApprovalRequest):
 @app.get("/memory/{user_id}")
 def get_memory(user_id: str):
     return memory_store.load(user_id)
+
+
+@app.get("/profile/{user_id}")
+def get_profile(user_id: str):
+    """Return the style_profile for a user."""
+    mem = memory_store.load(user_id)
+    return memory_store.get_style_profile(mem)
+
+
+@app.put("/profile/{user_id}")
+def update_profile(user_id: str, req: StyleProfileRequest):
+    """
+    Update persisted style_profile for a user.
+    Merges the provided fields into the existing profile.
+    """
+    patch = req.model_dump(exclude_none=True)
+    updated = memory_store.update_style_profile(user_id, patch)
+    return {"user_id": user_id, "style_profile": updated}
 
 
 @app.delete("/memory/{user_id}")

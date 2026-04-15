@@ -19,6 +19,7 @@ class ResolvedContext(BaseModel):
     who_with: Optional[str] = None
     style_preferences: list[str] = []
     avoid_items: list[str] = []     # item_ids worn recently for same occasion
+    style_profile: dict = {}        # {gender, style_notes, fit_preferences, ...}
 
 
 class OutfitItem(BaseModel):

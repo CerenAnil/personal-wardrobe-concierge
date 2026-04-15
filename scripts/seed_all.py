@@ -61,6 +61,11 @@ def main():
     items = load_items()
     print(f"Loaded {len(items)} items from {ITEMS_PATH}")
 
+    # Normalise: both sqlite_client and chroma_client expect key "id"
+    for item in items:
+        if "id" not in item and "item_id" in item:
+            item["id"] = item["item_id"]
+
     seed_sqlite(items)
     seed_chroma(items, reset=args.reset)
 

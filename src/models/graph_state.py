@@ -19,6 +19,7 @@ class GraphState(TypedDict, total=False):
     city: Optional[str]
     dress_code: Optional[str]
     who_with: Optional[str]
+    style_profile: Optional[dict]   # per-request override; merged with persisted profile
 
     # ── Resolved context (after resolve_context node) ────────────────────────
     resolved_context: Optional[dict]   # ResolvedContext.model_dump()

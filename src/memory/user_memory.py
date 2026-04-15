@@ -18,6 +18,13 @@ MEMORY_DIR = os.getenv("MEMORY_STORE_PATH", "data/memory")
 
 DEFAULT_MEMORY = {
     "user_id": "user_001",
+    "style_profile": {
+        "gender": "women",
+        "style_notes": "classic, minimal, neutral palette",
+        "fit_preferences": [],        # e.g. ["tailored", "oversized"]
+        "colour_preferences": [],     # e.g. ["neutrals", "warm tones"]
+        "avoid_styles": [],           # e.g. ["logo-heavy", "neon"]
+    },
     "style_preferences": ["minimal", "classic", "neutral-palette"],
     "avoid_styles": [],
     "recent_wear": [],       # list of {outfit_id, occasion, item_ids, worn_on}
@@ -109,7 +116,25 @@ def update_after_session(
     _save(user_id, memory)
 
 
+def get_style_profile(memory: dict) -> dict:
+    """Return the style_profile dict, falling back to defaults if absent."""
+    return memory.get("style_profile", DEFAULT_MEMORY["style_profile"])
+
+
 def update_preferences(user_id: str, style_preferences: list[str]) -> None:
     memory = load(user_id)
     memory["style_preferences"] = style_preferences
     _save(user_id, memory)
+
+
+def update_style_profile(user_id: str, profile_patch: dict) -> dict:
+    """
+    Merge `profile_patch` into the user's style_profile and persist.
+    Returns the updated full style_profile.
+    """
+    memory = load(user_id)
+    current = memory.get("style_profile", {**DEFAULT_MEMORY["style_profile"]})
+    current.update({k: v for k, v in profile_patch.items() if v is not None})
+    memory["style_profile"] = current
+    _save(user_id, memory)
+    return current

@@ -60,7 +60,8 @@ def _build_graph_context(top_item_id: str) -> str:
 # ---------------------------------------------------------------------------
 SYSTEM_PROMPT = """You are a personal stylist building a complete outfit from a wardrobe.
 Select one item per category where possible (top, bottom, shoes, accessories).
-Consider color coordination, formality alignment, and the occasion.
+If a dress is selected (subcategory="dress"), do NOT also select a separate bottom — the dress covers both.
+Consider color coordination, formality alignment, the occasion, and the user's style profile.
 Respond ONLY with valid JSON — no markdown, no extra text."""
 
 
@@ -69,12 +70,18 @@ def _build_user_prompt(
     candidates: list[dict],
     graph_context: str,
 ) -> str:
-    occasion   = resolved.get("occasion", "")
-    formality  = resolved.get("formality_target", 3)
-    season     = resolved.get("season", "")
-    weather    = resolved.get("weather_summary", "")
-    prefs      = ", ".join(resolved.get("style_preferences", [])) or "none"
-    avoid      = resolved.get("avoid_items", [])
+    occasion      = resolved.get("occasion", "")
+    formality     = resolved.get("formality_target", 3)
+    season        = resolved.get("season", "")
+    weather       = resolved.get("weather_summary", "")
+    prefs         = ", ".join(resolved.get("style_preferences", [])) or "none"
+    avoid         = resolved.get("avoid_items", [])
+    style_profile = resolved.get("style_profile", {})
+    gender        = style_profile.get("gender", "")
+    style_notes   = style_profile.get("style_notes", "")
+    fit_prefs     = ", ".join(style_profile.get("fit_preferences", [])) or "none"
+    colour_prefs  = ", ".join(style_profile.get("colour_preferences", [])) or "none"
+    avoid_styles  = ", ".join(style_profile.get("avoid_styles", [])) or "none"
 
     candidate_lines = []
     for c in candidates:
@@ -91,6 +98,19 @@ def _build_user_prompt(
 
     avoid_str = ", ".join(avoid) if avoid else "none"
 
+    profile_lines = []
+    if gender:
+        profile_lines.append(f"GENDER: {gender}")
+    if style_notes:
+        profile_lines.append(f"STYLE NOTES: {style_notes}")
+    if fit_prefs != "none":
+        profile_lines.append(f"FIT PREFERENCES: {fit_prefs}")
+    if colour_prefs != "none":
+        profile_lines.append(f"COLOUR PREFERENCES: {colour_prefs}")
+    if avoid_styles != "none":
+        profile_lines.append(f"STYLES TO AVOID: {avoid_styles}")
+    profile_block = "\n".join(profile_lines) if profile_lines else "No profile set."
+
     return f"""Build a complete outfit for this occasion.
 
 OCCASION: {occasion}
@@ -100,6 +120,9 @@ WEATHER: {weather}
 STYLE PREFERENCES: {prefs}
 ITEMS TO AVOID (worn recently): {avoid_str}
 
+USER STYLE PROFILE:
+{profile_block}
+
 CANDIDATE ITEMS:
 {chr(10).join(candidate_lines)}
 
@@ -107,6 +130,8 @@ GRAPH CONTEXT:
 {graph_context}
 
 Select items to form a complete outfit (top, bottom, shoes, + optional accessories).
+Respect the user's style profile above all else — gender, fit preferences, and style notes must guide selection.
+If a dress is chosen, do not also pick a separate bottom.
 Prioritize formality {formality} items. Match colors. Avoid the listed items.
 
 Respond in this exact JSON format:

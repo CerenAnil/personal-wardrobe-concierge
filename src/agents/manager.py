@@ -111,7 +111,12 @@ def resolve(state: GraphState) -> dict:
 
     # Memory
     memory = user_memory.load(user_id)
-    avoid_items = user_memory.get_avoid_items(memory, occasion)
+    avoid_items  = user_memory.get_avoid_items(memory, occasion)
+    style_profile = user_memory.get_style_profile(memory)
+
+    # Allow per-request style_profile override (passed in state by API)
+    if state.get("style_profile"):
+        style_profile = {**style_profile, **state["style_profile"]}
 
     resolved = ResolvedContext(
         occasion=occasion,
@@ -123,6 +128,7 @@ def resolve(state: GraphState) -> dict:
         who_with=state.get("who_with"),
         style_preferences=memory.get("style_preferences", []),
         avoid_items=avoid_items,
+        style_profile=style_profile,
     )
 
     return {

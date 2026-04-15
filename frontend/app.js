@@ -136,10 +136,12 @@ const app = {
   async submit(overrideQuery) {
     if (state.phase !== 'idle') return;
 
-    const city      = $('cityInput').value.trim();
-    const dressCode = $('dressCodeInput').value;
-    const whoWith   = $('whoWithInput').value.trim();
-    const occasion  = state.occasion;
+    const city       = $('cityInput').value.trim();
+    const dressCode  = $('dressCodeInput').value;
+    const whoWith    = $('whoWithInput').value.trim();
+    const styleNotes = $('styleNotesInput').value.trim();
+    const fitPref    = $('fitPrefInput').value;
+    const occasion   = state.occasion;
 
     if (!occasion) return;
 
@@ -161,15 +163,24 @@ const app = {
     startLoadingCycle(spinnerNode);
 
     try {
+      // Build style_profile override only if the user filled something in
+      let styleProfile = null;
+      if (styleNotes || fitPref) {
+        styleProfile = { gender: 'women' };
+        if (styleNotes) styleProfile.style_notes = styleNotes;
+        if (fitPref)    styleProfile.fit_preferences = [fitPref];
+      }
+
       const res = await fetch(`${API}/outfit`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
-          raw_query:  rawQuery,
-          user_id:    USER_ID,
-          city:       city     || null,
-          dress_code: dressCode || null,
-          who_with:   whoWith  || null,
+          raw_query:     rawQuery,
+          user_id:       USER_ID,
+          city:          city       || null,
+          dress_code:    dressCode  || null,
+          who_with:      whoWith    || null,
+          style_profile: styleProfile,
         }),
       });
 
@@ -341,3 +352,15 @@ function showError(msg) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 setPhase('idle');
+
+// Ensure the persisted profile has gender=women on first load.
+// This is a best-effort call — silently ignore failures (API may be offline).
+(async () => {
+  try {
+    await fetch(`${API}/profile/${USER_ID}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ gender: 'women' }),
+    });
+  } catch { /* API not running — no-op */ }
+})();
