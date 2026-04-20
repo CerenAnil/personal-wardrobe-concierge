@@ -4,7 +4,7 @@
  * States: idle -> processing -> awaiting_approval -> idle
  */
 
-const API     = 'http://localhost:8000';
+const API     = window.location.port === '3131' ? 'http://localhost:8000' : '';
 const USER_ID = 'user_001';
 
 // ── State ──────────────────────────────────────────────────────────────────

@@ -26,7 +26,7 @@ from pydantic import BaseModel
 from langgraph.types import Command
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 from src.graph.workflow import get_graph
 from src.memory import user_memory as memory_store

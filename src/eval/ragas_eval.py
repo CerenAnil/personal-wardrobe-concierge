@@ -39,7 +39,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 from src.retrieval.hybrid_search import search
 from src.db.sqlite_client import get_item

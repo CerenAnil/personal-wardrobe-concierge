@@ -1,8 +1,11 @@
 # Secrets
 .env
+.env.local
+.env.*.local
 
 # Agent context (project-specific, not for version control)
 agent.instructions.md
+.claude/
 
 # Generated data (reproduce via scripts/generate_seed_data.py + seed_all.py)
 data/seed/wardrobe.db
@@ -10,9 +13,29 @@ data/seed/wardrobe_items.json
 data/eval/ragas_queries.json
 data/memory/
 
-# Caches
+# Caches & build artefacts
 .cache/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# OS
 .DS_Store
+Thumbs.db
+.Rhistory
+.Rdata
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -8,6 +8,20 @@ A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it b
 
 ---
 
+## Course Checkpoint Coverage
+
+| Week | Topic | Implementation |
+|------|-------|----------------|
+| 5 | RAG 2.0 - Hybrid search + self-correcting loop | BM25 + vector search over wardrobe; low-confidence retry with relaxed filters |
+| 6 | GraphRAG - Neo4j Knowledge Graph | Outfit compatibility graph: items, occasions, wear history as nodes + relationships |
+| 7 | RAGAS Evaluation | 50 held-out occasion queries scored on context precision, faithfulness, answer relevancy |
+| 8 | MCP Foundations | Wardrobe SQLite MCP server + live Weather API MCP server |
+| 9 | Building MCP Servers | Custom gap-finder MCP tool: detects missing outfit pieces, returns a search query |
+| 10 | Multi-Agent Workflows | Manager → Outfit Agent + Gap Agent + Occasion Reasoner (hierarchical fan-out) |
+| 11 | HITL & Memory | Approval gate ("Did you wear this?") + per-outfit wear history in long-term memory |
+
+---
+
 ## What it does
 
 - **Hybrid retrieval** - BM25 keyword search + ChromaDB vector search fused with RRF (k=60) over a 60-item wardrobe
