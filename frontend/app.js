@@ -278,6 +278,15 @@ const app = {
 };
 
 // ── Render outfit card ─────────────────────────────────────────────────────
+
+// Replace item_XXX references in LLM-generated text with human-readable names.
+function resolveItemRefs(text, items) {
+  if (!text) return text;
+  const lookup = {};
+  (items || []).forEach(i => { if (i.item_id) lookup[i.item_id] = i.name; });
+  return text.replace(/\bitem_\d+\b/g, id => lookup[id] || id);
+}
+
 function renderOutfitCard(outfit, nonFatalError) {
   const items      = outfit.items || [];
   const readyClass = outfit.ready_to_wear ? 'yes' : 'no';
@@ -305,10 +314,10 @@ function renderOutfitCard(outfit, nonFatalError) {
     noteLines.push(`<div class="note-line"><span class="note-icon">&#x1F324;</span><span>${outfit.weather_summary}</span></div>`);
   }
   if (outfit.occasion_notes) {
-    noteLines.push(`<div class="note-line warn"><span class="note-icon">&#x26A0;</span><span>${outfit.occasion_notes}</span></div>`);
+    noteLines.push(`<div class="note-line warn"><span class="note-icon">&#x26A0;</span><span>${resolveItemRefs(outfit.occasion_notes, items)}</span></div>`);
   }
   if (outfit.gap_message && outfit.gap_message !== 'Outfit is complete.') {
-    noteLines.push(`<div class="note-line warn"><span class="note-icon">&#x1F50D;</span><span>${outfit.gap_message}</span></div>`);
+    noteLines.push(`<div class="note-line warn"><span class="note-icon">&#x1F50D;</span><span>${resolveItemRefs(outfit.gap_message, items)}</span></div>`);
   }
   if (nonFatalError) {
     noteLines.push(`<div class="note-line warn"><span class="note-icon">&#x26A1;</span><span>Graph warning: ${nonFatalError.split('\n')[0]}</span></div>`);
@@ -348,6 +357,315 @@ function renderOutfitCard(outfit, nonFatalError) {
 // ── Error display ──────────────────────────────────────────────────────────
 function showError(msg) {
   addNode(`<div class="result-banner error">${msg}</div>`);
+}
+
+// ── Settings ───────────────────────────────────────────────────────────────
+const CLOUD_MODEL = 'claude-haiku-4-5-20251001';
+const LOCAL_MODEL  = 'qwen/qwen3.5-9b';
+
+let settingsOutfitModel = CLOUD_MODEL; // synced from server on open
+
+function _applyToggleUI(model) {
+  const track  = document.getElementById('modelToggleTrack');
+  const label  = document.getElementById('modelActiveLabel');
+  const isLocal = model === LOCAL_MODEL;
+  track.classList.toggle('local', isLocal);
+  label.textContent = isLocal
+    ? 'Using local model - requests will take ~2 min'
+    : 'Using cloud model - requests take ~4s';
+}
+
+app.openSettings = async function () {
+  document.getElementById('messages').hidden      = true;
+  document.getElementById('settingsPanel').hidden = false;
+  document.getElementById('settingsBtn').style.display = 'none';
+
+  // Fetch current routing from server
+  try {
+    const res  = await fetch(`${API}/settings`);
+    const data = await res.json();
+    settingsOutfitModel = data.routing?.outfit || CLOUD_MODEL;
+    _applyToggleUI(settingsOutfitModel);
+  } catch { /* offline */ }
+
+  await app.refreshHistory();
+};
+
+app.closeSettings = function () {
+  document.getElementById('settingsPanel').hidden = true;
+  document.getElementById('messages').hidden      = false;
+  document.getElementById('settingsBtn').style.display = '';
+};
+
+app.toggleOutfitModel = async function () {
+  const next = settingsOutfitModel === CLOUD_MODEL ? LOCAL_MODEL : CLOUD_MODEL;
+  try {
+    const res  = await fetch(`${API}/settings`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ outfit_model: next }),
+    });
+    const data = await res.json();
+    settingsOutfitModel = data.routing?.outfit || next;
+    _applyToggleUI(settingsOutfitModel);
+  } catch { /* offline */ }
+};
+
+// ── LLM History ────────────────────────────────────────────────────────────
+app.refreshHistory = async function () {
+  try {
+    const res   = await fetch(`${API}/llm-history`);
+    const calls = await res.json();
+    renderHistoryTable(calls);
+  } catch { /* offline */ }
+};
+
+app.clearHistory = async function () {
+  try {
+    await fetch(`${API}/llm-history`, { method: 'DELETE' });
+    renderHistoryTable([]);
+  } catch { /* offline */ }
+};
+
+function renderHistoryTable(calls) {
+  const tbody = document.getElementById('historyTableBody');
+  if (!calls || calls.length === 0) {
+    tbody.innerHTML = '<tr class="history-empty-row"><td colspan="8">No calls yet - build an outfit to see history.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = calls.map((c, idx) => {
+    const modelShort = c.model.startsWith('claude-') ? c.model.replace('claude-', '').replace(/-\d{8}$/, '') : c.model;
+    const costStr    = c.cost_usd === 0
+      ? `<span class="cost-free">free</span>`
+      : `<span class="cost-paid">$${c.cost_usd.toFixed(5)}</span>`;
+    const time = c.timestamp.split('T')[1] || c.timestamp;
+    return `
+      <tr onclick="toggleHistoryRow(${idx})" data-idx="${idx}">
+        <td>${c.id}</td>
+        <td>${time}</td>
+        <td><span class="role-badge ${c.role}">${c.role}</span></td>
+        <td><span class="model-pill">${modelShort}</span></td>
+        <td>${c.input_tokens.toLocaleString()}</td>
+        <td>${c.output_tokens.toLocaleString()}</td>
+        <td>${costStr}</td>
+        <td>${Math.round(c.latency_ms)}ms</td>
+      </tr>
+      <tr class="history-detail-row" id="detail-${idx}" hidden>
+        <td colspan="8">
+          <div class="history-detail-inner">
+            <div>
+              <div class="detail-block-label">System prompt</div>
+              <pre class="detail-json">${escHtml(c.request.system)}</pre>
+            </div>
+            <div>
+              <div class="detail-block-label">User prompt</div>
+              <pre class="detail-json">${escHtml(c.request.user)}</pre>
+            </div>
+            <div>
+              <div class="detail-block-label">Response</div>
+              <pre class="detail-json">${escHtml(c.response)}</pre>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function toggleHistoryRow(idx) {
+  const detail = document.getElementById(`detail-${idx}`);
+  const row    = document.querySelector(`tr[data-idx="${idx}"]`);
+  const hidden = detail.hidden;
+  detail.hidden = !hidden;
+  row.classList.toggle('expanded', hidden);
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ── Demo mode ──────────────────────────────────────────────────────────────
+
+const DEMO_STEPS = [
+  {
+    target: '#occasionGrid',
+    tag:    'Week 5 - Wardrobe Seeding',
+    text:   'Your wardrobe has 30 clothing items stored in ChromaDB. Each item is embedded as a semantic vector. Selecting an occasion drives a similarity search - the vector store returns the most relevant pieces for that context.',
+  },
+  {
+    target: '.context-fields',
+    tag:    'Week 6 - LangGraph Multi-Agent',
+    text:   'City, dress code and who you\'re with feed a 4-node LangGraph workflow: Manager agent -> Outfit agent -> Occasion agent -> HITL interrupt. Each node is a separate LLM call with its own system prompt and tool.',
+  },
+  {
+    target: '.feed',
+    tag:    'Week 7 - LLM Routing',
+    text:   'Submitting a demo query now. The model router dispatches to Claude Haiku (cloud, ~4s) or Qwen 3.5-9B running locally in LM Studio (~2 min, free). Watch the feed - the outfit card will appear shortly.',
+    action:  () => { if (state.phase === 'idle') app.quickFill('smart casual dinner tonight', 'dinner'); },
+    waitFor: '.outfit-card',
+  },
+  {
+    target: '.outfit-items',
+    tag:    'Week 5 - Vector Retrieval',
+    text:   'These items were retrieved by ChromaDB cosine similarity search, then re-ranked with Reciprocal Rank Fusion (RRF, k=60) combining two query strategies: category-based and full-semantic. The top items become the outfit.',
+  },
+  {
+    target: '.formality-dots',
+    tag:    'Week 11 - Occasion Agent',
+    text:   'Each item carries a formality score (1-5, shown as gold dots). The Occasion Agent validates every item falls within +/-1 of the target formality for the occasion. Any mismatch triggers a suggestion in the notes.',
+  },
+  {
+    target: '.outfit-card',
+    tag:    'Week 10 - Weather Integration',
+    text:   'If a city was provided, live weather data is fetched and attached to the outfit context. The Occasion Agent checks for weather mismatches: suede shoes in rain, sandals in cold, heavy coats in heat.',
+  },
+  {
+    target: '.approval-bar',
+    tag:    'Week 9 - Human in the Loop',
+    text:   'LangGraph pauses execution here with interrupt(). The entire graph state is frozen in MemorySaver. Approving logs the outfit to the wear history - declining ends the session cleanly without writing anything.',
+  },
+  {
+    target: '.sidebar-footer',
+    tag:    'Week 8 - Wear Memory',
+    text:   'Approved outfits are written to a JSON memory store (data/memory/user_001.json). This powers repeat-wear detection: the Occasion Agent flags any item worn for the same occasion within the past 30 days.',
+  },
+  {
+    target: '#settingsBtn',
+    tag:    'Week 12 - Local Model',
+    text:   'Settings expose the model toggle. The PUT /settings endpoint updates a _runtime_overrides dict in the router - no server restart needed. The backend checks overrides first, then falls back to the OUTFIT_MODEL env var.',
+    action:  () => app.openSettings(),
+    waitFor: '#settingsPanel:not([hidden])',
+  },
+  {
+    target: '#modelToggleTrack',
+    tag:    'Week 12 - Runtime Routing',
+    text:   'Toggle between Claude Haiku (~4s, fractions of a cent per call) and Qwen 3.5-9B via LM Studio (free, but ~2 min on consumer hardware). Both use the same unified chat() client - only the model name differs.',
+  },
+  {
+    target: '#historyTableWrap',
+    tag:    'Week 7 - Call History',
+    text:   'Every LLM call is logged in a server-side ring buffer: model, role, token counts, cost in USD, and latency. Click any row to expand the full system prompt, user prompt, and raw JSON response.',
+  },
+];
+
+let _demoActive = false;
+let _demoStep   = 0;
+let _demoWaitTimer = null;
+
+app.startDemo = function () {
+  // Close settings if open, reset to main feed view
+  if (!document.getElementById('settingsPanel').hidden) {
+    app.closeSettings();
+  }
+  _demoActive = true;
+  _demoStep   = 0;
+  document.getElementById('demoOverlay').removeAttribute('hidden');
+  document.getElementById('demoPanel').removeAttribute('hidden');
+  _demoShowStep(0);
+};
+
+app.stopDemo = function () {
+  _demoActive = false;
+  clearTimeout(_demoWaitTimer);
+  document.getElementById('demoOverlay').setAttribute('hidden', '');
+  document.getElementById('demoPanel').setAttribute('hidden', '');
+  document.getElementById('demoHighlight').setAttribute('hidden', '');
+};
+
+app.demoNext = function () {
+  if (!_demoActive) return;
+  if (_demoStep < DEMO_STEPS.length - 1) {
+    _demoStep++;
+    _demoShowStep(_demoStep);
+  } else {
+    app.stopDemo();
+  }
+};
+
+app.demoPrev = function () {
+  if (!_demoActive || _demoStep === 0) return;
+  _demoStep--;
+  _demoShowStep(_demoStep);
+};
+
+function _demoShowStep(idx) {
+  clearTimeout(_demoWaitTimer);
+  const step  = DEMO_STEPS[idx];
+  const total = DEMO_STEPS.length;
+
+  // Render panel text and nav state
+  document.getElementById('demoTag').textContent      = step.tag;
+  document.getElementById('demoText').textContent     = step.text;
+  document.getElementById('demoProgress').textContent = `${idx + 1} / ${total}`;
+  document.getElementById('demoPrevBtn').disabled     = idx === 0;
+  const nextBtn = document.getElementById('demoNextBtn');
+  nextBtn.textContent = idx === total - 1 ? 'Finish' : 'Next \u2192';
+  nextBtn.disabled = false;
+
+  // Run action if defined (e.g. quickFill, openSettings)
+  if (step.action) {
+    step.action();
+  }
+
+  // Spotlight - if waitFor, disable Next and poll; otherwise spotlight immediately
+  if (step.waitFor) {
+    nextBtn.disabled = true;
+    // Try immediate
+    const existing = document.querySelector(step.waitFor);
+    if (existing) {
+      _demoSpotlight(existing);
+      nextBtn.disabled = false;
+    } else {
+      // Spotlight the declared target while waiting
+      _demoSpotlightSelector(step.target);
+      _demoWaitForEl(step.waitFor, 20000).then(el => {
+        if (!_demoActive || _demoStep !== idx) return;
+        if (el) _demoSpotlight(el);
+        nextBtn.disabled = false;
+      });
+    }
+  } else {
+    _demoSpotlightSelector(step.target);
+  }
+}
+
+function _demoSpotlightSelector(selector) {
+  const el = document.querySelector(selector);
+  if (el) {
+    _demoSpotlight(el);
+  } else {
+    document.getElementById('demoHighlight').setAttribute('hidden', '');
+  }
+}
+
+function _demoSpotlight(el) {
+  const rect = el.getBoundingClientRect();
+  const pad  = 8;
+  const hl   = document.getElementById('demoHighlight');
+  hl.removeAttribute('hidden');
+  hl.style.top    = (rect.top    - pad) + 'px';
+  hl.style.left   = (rect.left   - pad) + 'px';
+  hl.style.width  = (rect.width  + pad * 2) + 'px';
+  hl.style.height = (rect.height + pad * 2) + 'px';
+}
+
+function _demoWaitForEl(selector, timeoutMs) {
+  return new Promise(resolve => {
+    const el = document.querySelector(selector);
+    if (el) { resolve(el); return; }
+    const deadline = Date.now() + timeoutMs;
+    const tick = () => {
+      const found = document.querySelector(selector);
+      if (found) { resolve(found); return; }
+      if (Date.now() >= deadline) { resolve(null); return; }
+      _demoWaitTimer = setTimeout(tick, 250);
+    };
+    _demoWaitTimer = setTimeout(tick, 250);
+  });
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────

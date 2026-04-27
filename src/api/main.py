@@ -30,6 +30,8 @@ load_dotenv(override=True)
 
 from src.graph.workflow import get_graph
 from src.memory import user_memory as memory_store
+from src.llm import router as llm_router
+from src.llm import history as llm_history
 
 # ---------------------------------------------------------------------------
 # App
@@ -67,6 +69,11 @@ class StyleProfileRequest(BaseModel):
 class ApprovalRequest(BaseModel):
     session_id: str
     approved: bool
+
+
+class SettingsRequest(BaseModel):
+    outfit_model: Optional[str] = None
+    occasion_model: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +200,46 @@ def reset_memory(user_id: str):
     if os.path.exists(mem_path):
         os.remove(mem_path)
     return {"status": "cleared", "user_id": user_id}
+
+
+# ---------------------------------------------------------------------------
+# Settings — runtime model routing
+# ---------------------------------------------------------------------------
+@app.get("/settings")
+def get_settings():
+    """Return current model routing config."""
+    return {
+        "routing": llm_router.describe_routing(),
+        "options": {
+            "cloud": "claude-haiku-4-5-20251001",
+            "local": "qwen/qwen3.5-9b",
+        },
+    }
+
+
+@app.put("/settings")
+def update_settings(req: SettingsRequest):
+    """Override model routing at runtime (no server restart needed)."""
+    if req.outfit_model is not None:
+        llm_router.set_model("outfit", req.outfit_model)
+    if req.occasion_model is not None:
+        llm_router.set_model("occasion", req.occasion_model)
+    return {"routing": llm_router.describe_routing()}
+
+
+# ---------------------------------------------------------------------------
+# LLM history
+# ---------------------------------------------------------------------------
+@app.get("/llm-history")
+def get_llm_history():
+    """Return all logged LLM calls, most recent first."""
+    return llm_history.get_all()
+
+
+@app.delete("/llm-history")
+def clear_llm_history():
+    llm_history.clear()
+    return {"status": "cleared"}
 
 
 # ---------------------------------------------------------------------------

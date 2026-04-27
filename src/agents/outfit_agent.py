@@ -15,22 +15,12 @@ import json
 import os
 import re
 
-import anthropic
-
 from src.models.graph_state import GraphState
 from src.models.schemas import OutfitItem, OutfitResult
 from src.retrieval.hybrid_search import search_with_retry
 from src.retrieval.graph_retrieval import get_pairs_for_item, get_worn_together
-
-WORKER_MODEL = os.getenv("WORKER_MODEL", "claude-haiku-4-5-20251001")
-_client: anthropic.Anthropic | None = None
-
-
-def _get_client() -> anthropic.Anthropic:
-    global _client
-    if _client is None:
-        _client = anthropic.Anthropic()
-    return _client
+from src.llm.client import chat
+from src.llm.router import get_model
 
 
 # ---------------------------------------------------------------------------
@@ -216,13 +206,13 @@ def run(state: GraphState) -> dict:
 
     # 3. LLM selects outfit
     prompt = _build_user_prompt(resolved, candidates, graph_context)
-    response = _get_client().messages.create(
-        model=WORKER_MODEL,
-        max_tokens=1024,
+    raw_content = chat(
+        model=get_model("outfit"),
         system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
+        user=prompt,
+        max_tokens=1024,
+        role="outfit",
     )
-    raw_content = response.content[0].text
 
     items, llm_confidence = _parse_llm_response(raw_content, candidates)
 

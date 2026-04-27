@@ -1,6 +1,6 @@
 # Wardrobe Concierge
 
-A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it builds a complete outfit, flags missing pieces, and remembers what you've worn.
+A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it builds a complete outfit from your clothing items, checks weather and formality fit, detects missing pieces, and remembers what you have worn.
 
 ![Empty state](docs/screenshots/empty-state.png)
 
@@ -12,24 +12,29 @@ A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it b
 
 | Week | Topic | Implementation |
 |------|-------|----------------|
-| 5 | RAG 2.0 - Hybrid search + self-correcting loop | BM25 + vector search over wardrobe; low-confidence retry with relaxed filters |
-| 6 | GraphRAG - Neo4j Knowledge Graph | Outfit compatibility graph: items, occasions, wear history as nodes + relationships |
-| 7 | RAGAS Evaluation | 50 held-out occasion queries scored on context precision, faithfulness, answer relevancy |
-| 8 | MCP Foundations | Wardrobe SQLite MCP server + live Weather API MCP server |
-| 9 | Building MCP Servers | Custom gap-finder MCP tool: detects missing outfit pieces, returns a search query |
-| 10 | Multi-Agent Workflows | Manager → Outfit Agent + Gap Agent + Occasion Reasoner (hierarchical fan-out) |
-| 11 | HITL & Memory | Approval gate ("Did you wear this?") + per-outfit wear history in long-term memory |
+| 5 | RAG 2.0 - Hybrid search | BM25 + ChromaDB vector search fused with RRF (k=60) over a 30-item wardrobe |
+| 6 | GraphRAG | Neo4j palette coherence check; PAIRS_WITH / CLASHES_WITH edges steer outfit selection |
+| 7 | RAGAS Evaluation + Model Strategy | Quality benchmark: Haiku vs Qwen3.5-9B across 10 queries (`results/benchmark.json`) |
+| 8 | MCP Foundations | Weather MCP server (Open-Meteo + geocoding); Wardrobe SQLite MCP server |
+| 9 | Building MCP Servers | Gap-finder agent: detects missing outfit categories, generates shopping search queries |
+| 10 | Multi-Agent Workflows | LangGraph 7-node graph with fan-out/join: Manager -> Outfit -> [Occasion + Gap] -> Aggregate |
+| 11 | HITL and Memory | LangGraph `interrupt()` approval gate + per-user JSON wear history (30-day repeat detection) |
+| 12 | Small Model Strategy | Runtime model toggle: cloud (Claude Haiku, ~4s) vs local (Qwen3.5-9B via LM Studio, free) |
 
 ---
 
 ## What it does
 
-- **Hybrid retrieval** - BM25 keyword search + ChromaDB vector search fused with RRF (k=60) over a 60-item wardrobe
-- **Graph-aware selection** - Neo4j PAIRS_WITH / CLASHES_WITH edges steer the outfit agent away from clashing combinations
+- **Hybrid retrieval** - BM25 keyword search + ChromaDB vector search fused with Reciprocal Rank Fusion (k=60) over a wardrobe of 30 clothing items
+- **Multi-agent graph** - 7-node LangGraph workflow: resolve context, search outfit, validate occasion (parallel), check gaps (parallel), aggregate, HITL gate, record wear
 - **Real weather** - Open-Meteo geocoding + forecast API; outfit formality and layering adapt to conditions
-- **Gap detection** - flags missing categories (top, bottom, shoes, accessory) and generates shopping search queries
-- **Human-in-the-loop** - LangGraph HITL interrupt blocks wear logging until you approve; wear history is never written silently
-- **Per-user memory** - avoids repeating outfits worn within the last 30 days for the same occasion
+- **Occasion validation** - Occasion Agent checks formality alignment (+/-1), weather mismatches (suede in rain, sandals in cold), and repeat wear within 30 days
+- **Gap detection** - flags missing outfit categories (top, bottom, shoes, accessory) and generates shopping search queries
+- **Human-in-the-loop** - LangGraph `interrupt()` pauses graph execution; wear history is never written silently
+- **Per-user memory** - JSON store tracks every approved outfit; avoids repeating items worn for the same occasion within 30 days
+- **Runtime model switching** - Settings toggle swaps between cloud (Haiku) and local (Qwen via LM Studio) without a server restart
+- **LLM call history** - every model call is logged with token counts, cost, and full request/response JSON
+- **Demo mode** - 11-step guided tour covering all 8 course checkpoints with spotlight highlights
 
 ---
 
@@ -39,28 +44,27 @@ A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it b
 User query
     |
     v
-Manager Agent (resolve)       <- weather + user memory + formality inference
+resolve_context          <- weather + user memory + formality inference
     |
     v
-Outfit Agent                  <- hybrid BM25+vector search + graph context + LLM selection
-    |         \
+outfit_search            <- BM25 + ChromaDB hybrid search + LLM item selection
+    |          \
+    v           v
+occasion_reason  gap_check     <- parallel fan-out
+    |           /
     v          v
-Occasion      Gap Agent       <- parallel fan-out
-Reasoner
-    |         /
-    v        v
-Manager Agent (aggregate)     <- palette coherence check + FinalOutfit
+manager_aggregate        <- Neo4j palette check + FinalOutfit assembly
     |
     v
-HITL Gate  <-- interrupt()    <- user approves or declines via /approve
+hitl_gate  <-- interrupt()    <- user approves or declines via /approve
     |
     v
-Record Wear                   <- SQLite wear_log + Neo4j WORN_TOGETHER + user memory update
+record_wear              <- JSON memory update + wear log
 ```
 
-**Models:** `claude-sonnet-4-6` (Manager), `claude-haiku-4-5-20251001` (Workers)
+**Models:** `claude-haiku-4-5-20251001` (all agents, default) or `qwen/qwen3.5-9b` (local via LM Studio)
 
-**Stack:** LangGraph - FastMCP - ChromaDB - Neo4j AuraDB - rank-bm25 - FastAPI - sentence-transformers
+**Stack:** LangGraph - ChromaDB - Neo4j AuraDB - rank-bm25 - FastAPI - sentence-transformers
 
 ---
 
@@ -70,26 +74,29 @@ Record Wear                   <- SQLite wear_log + Neo4j WORN_TOGETHER + user me
 personal-wardrobe-concierge/
 ├── data/
 │   ├── seed/
-│   │   ├── wardrobe_items.json    60 synthetic items (seed=42)
-│   │   └── wardrobe.db            SQLite database
+│   │   ├── wardrobe_items.json    30 synthetic wardrobe items (seed=42)
+│   │   └── wardrobe.db            SQLite wardrobe database
 │   ├── eval/
-│   │   └── ragas_queries.json     50 RAGAS evaluation queries
-│   └── memory/
-│       └── user_001.json          Per-user wear history (runtime)
+│   │   └── ragas_queries.json     Evaluation queries
+│   └── memory/                    Per-user wear history (runtime, gitignored)
+├── results/
+│   └── benchmark.json             Haiku vs Qwen quality/latency benchmark
 ├── scripts/
-│   ├── generate_seed_data.py      Generates wardrobe items + eval queries
+│   ├── generate_seed_data.py      Generates wardrobe items
 │   ├── seed_all.py                Seeds SQLite + ChromaDB
-│   └── seed_neo4j.py              Seeds Neo4j graph
+│   ├── seed_neo4j.py              Seeds Neo4j graph (PAIRS_WITH / CLASHES_WITH)
+│   └── benchmark_models.py        Haiku vs local model benchmark runner
 ├── src/
 │   ├── models/                    GraphState TypedDict + Pydantic schemas
 │   ├── db/                        SQLite, ChromaDB, Neo4j clients
 │   ├── retrieval/                 Hybrid BM25+vector search, graph retrieval
-│   ├── mcp/                       FastMCP servers: wardrobe, weather, gap finder
-│   ├── memory/                    Per-user JSON memory
+│   ├── mcp/                       Weather MCP + Wardrobe MCP servers
+│   ├── memory/                    Per-user JSON memory store
+│   ├── llm/                       Unified LLM client, model router, call history log
 │   ├── agents/                    Manager, Outfit, Occasion, Gap agents
 │   ├── graph/                     LangGraph nodes + workflow
-│   ├── eval/                      RAGAS evaluation harness
-│   └── api/                       FastAPI server
+│   ├── eval/                      Evaluation harness
+│   └── api/                       FastAPI server + static file serving
 ├── frontend/
 │   ├── index.html
 │   ├── style.css
@@ -105,11 +112,10 @@ personal-wardrobe-concierge/
 ### 1. Prerequisites
 
 - Python 3.10+
-- Node.js (for the frontend dev server)
-- Neo4j AuraDB Free account (or local Neo4j)
 - Anthropic API key
+- Neo4j AuraDB Free account (optional - app degrades gracefully without it)
 
-### 2. Install Python dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -121,47 +127,44 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` - the minimum required fields:
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...
-NEO4J_URI=neo4j+s://...
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=...
-GEOCODING_API_KEY=...        # api-ninjas.com free key (for weather city lookup)
-WEAR_SECRET=some-secret      # any string; gates wear logging
+GEOCODING_API_KEY=...        # free key from api.api-ninjas.com (for city weather lookup)
+WEAR_SECRET=any-random-string
 ```
 
-### 4. Generate and seed data
+Optional (Neo4j palette checking):
+```
+NEO4J_URI=neo4j+s://...
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=...
+```
+
+Optional (local model via LM Studio):
+```
+LM_STUDIO_URL=http://localhost:1234/v1
+```
+
+### 4. Seed data
 
 ```bash
-# Generate 60 wardrobe items + 50 eval queries
+# Generate and seed SQLite + ChromaDB (required)
 python scripts/generate_seed_data.py
-
-# Seed SQLite + ChromaDB
 python scripts/seed_all.py
 
-# Seed Neo4j graph (PAIRS_WITH / CLASHES_WITH edges)
+# Seed Neo4j graph (optional - skip if no AuraDB credentials)
 python scripts/seed_neo4j.py
 ```
 
-### 5. Start the API server
+### 5. Start the server
 
 ```bash
-python src/api/main.py
+PYTHONPATH=. python src/api/main.py
 ```
 
-Server starts at `http://localhost:8000`.
-
-### 6. Open the frontend
-
-The API serves the frontend at `http://localhost:8000/`. Open it in a browser.
-
-Or run the standalone frontend dev server (no backend needed for UI-only work):
-
-```bash
-npx serve -p 3131 frontend
-```
+Open `http://localhost:8000` in a browser. The API serves the frontend directly.
 
 ---
 
@@ -169,10 +172,16 @@ npx serve -p 3131 frontend
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/outfit` | Build outfit for an occasion |
-| `POST` | `/approve` | Approve or decline an outfit (HITL gate) |
+| `POST` | `/outfit` | Build outfit for an occasion (runs graph to HITL interrupt) |
+| `POST` | `/approve` | Approve or decline outfit (resumes suspended graph) |
+| `GET` | `/profile/{user_id}` | Read user style profile |
+| `PUT` | `/profile/{user_id}` | Update style profile (gender, style notes, fit preferences) |
 | `GET` | `/memory/{user_id}` | Read user wear memory |
 | `DELETE` | `/memory/{user_id}` | Clear user wear memory |
+| `GET` | `/settings` | Read current model routing |
+| `PUT` | `/settings` | Update model routing at runtime (no restart needed) |
+| `GET` | `/llm-history` | All LLM calls since server start (tokens, cost, latency, JSON) |
+| `DELETE` | `/llm-history` | Clear LLM call history |
 | `GET` | `/health` | Health check |
 
 ### POST /outfit
@@ -196,9 +205,10 @@ Response:
   "outfit": {
     "occasion": "dinner",
     "items": [...],
-    "color_palette": "navy & camel",
+    "color_palette": "navy and camel",
     "ready_to_wear": true,
-    "weather_summary": "12°C, partly cloudy",
+    "weather_summary": "12C, partly cloudy",
+    "occasion_notes": "All items at formality 3 - appropriate for smart casual dinner",
     "gap_message": "Outfit is complete."
   }
 }
@@ -212,44 +222,79 @@ Response:
 
 ---
 
-## Evaluation
+## How HITL works
 
-```bash
-# Custom retrieval metrics only (no LLM, fast)
-python src/eval/ragas_eval.py --retrieval-only --limit 20
-
-# Full RAGAS evaluation (requires ANTHROPIC_API_KEY)
-python src/eval/ragas_eval.py
-
-# Save to custom path
-python src/eval/ragas_eval.py --output results/run1.json
-```
-
-Metrics reported:
-
-| Metric | Description |
-|--------|-------------|
-| Recall@5 | Fraction of ground-truth items in top-5 results |
-| Recall@10 | Fraction of ground-truth items in top-10 results |
-| Precision@5 | Fraction of top-5 results that are ground truth |
-| MAP | Mean average precision over ranks 1-10 |
-| Context Precision | Are retrieved contexts relevant to the query? |
-| Context Recall | Do retrieved contexts cover the ground truth? |
-| Faithfulness | Is the outfit reasoning grounded in retrieved contexts? |
-| Answer Relevancy | Does the recommendation match the occasion? |
+The LangGraph workflow pauses at `hitl_gate` using `interrupt()`. The API returns `status: awaiting_approval` with the outfit and holds the graph state in MemorySaver (keyed by `session_id`). When `POST /approve` is called, the graph resumes via `Command(resume={"approved": bool})`. If approved the wear log is written; if declined the graph exits cleanly without writing anything.
 
 ---
 
-## How HITL works
+## Week 12 - Small Model Strategy
 
-The LangGraph workflow pauses at `hitl_gate` using `interrupt()`. The API returns `status: awaiting_approval` and holds the graph state in memory (keyed by `session_id`). When `POST /approve` is called, the graph resumes via `Command(resume={"approved": bool})`. If approved, the wear log is written; if declined, the graph exits cleanly without writing anything.
+### Runtime model routing
+
+All agent roles are swappable without restarting the server.
+
+**Via environment variable (persistent):**
+```bash
+OUTFIT_MODEL=claude-haiku-4-5-20251001   # default
+OUTFIT_MODEL=qwen/qwen3.5-9b             # local via LM Studio
+```
+
+**Via Settings UI or API (runtime, no restart):**
+```bash
+curl -X PUT http://localhost:8000/settings \
+  -H "Content-Type: application/json" \
+  -d '{"outfit_model": "qwen/qwen3.5-9b"}'
+```
+
+The unified client (`src/llm/client.py`) dispatches to the Anthropic SDK for `claude-*` models and to the OpenAI-compatible endpoint for everything else.
+
+### Benchmark results
+
+Full results in `results/benchmark.json`. Summary across 10 outfit queries:
+
+| Model | Avg Latency | Quality Score | Cost / 10 queries |
+|-------|-------------|---------------|-------------------|
+| `claude-haiku-4-5-20251001` | ~3.8s | 96.7% | ~$0.023 |
+| `qwen/qwen3.5-9b` (LM Studio) | ~125s* | N/A | free |
+
+*~12 tokens/s on consumer laptop hardware. Benchmark was interrupted after confirming the hardware bottleneck - see `results/benchmark.json` for the full finding.
+
+**Haiku quality breakdown (10 queries):**
+
+| Check | Pass rate |
+|-------|-----------|
+| Valid JSON | 100% |
+| Has items | 100% |
+| Item count (3-6) | 100% |
+| Covers required categories | 100% |
+| Formality aligned (+/-1) | 80% |
+| Has item reasons | 100% |
+
+**Qwen finding:** produces valid JSON with `/no_think` prompt suffix to suppress chain-of-thought tokens. At ~12 tok/s on consumer hardware each query takes 90-130s - impractical for interactive use. Viable on a GPU server or with a quantised smaller model.
+
+### Running the benchmark yourself
+
+```bash
+# Haiku only (fast, ~40s for 10 queries)
+python scripts/benchmark_models.py --models claude-haiku-4-5-20251001 --n 10
+
+# Both models (Qwen requires LM Studio running on port 1234)
+python scripts/benchmark_models.py --n 10 --output results/my_benchmark.json
+```
+
+---
+
+## Demo mode
+
+Click the **Demo** button in the top-right corner to start an 11-step guided tour. The tour auto-submits a live outfit query, spotlights each component as it explains it, and opens Settings automatically for the model routing steps. Steps covered: wardrobe seeding (W5), LangGraph workflow (W6), LLM routing (W7), memory store (W8), HITL gate (W9), weather integration (W10), occasion validation (W11), local model toggle (W12).
 
 ---
 
 ## Notes
 
 - ChromaDB runs in embedded mode - no separate server needed. Persisted at `.cache/chroma/`.
-- MCP servers use stdio transport - they are started as subprocesses by the API on startup.
-- Neo4j PAIRS_WITH / CLASHES_WITH edges are computed once at seed time, not per query.
-- The `WEAR_SECRET` env var is injected only at the `record_wear` node; agents never see it.
-- `log_outfit` in the wardrobe MCP server verifies the secret before writing.
+- Weather uses Open-Meteo (free, no key) for forecasts and api-ninjas for city geocoding.
+- Neo4j palette coherence is best-effort - the graph degrades gracefully if AuraDB is unreachable.
+- `WEAR_SECRET` is injected only at the `record_wear` node; agents never see it.
+- LLM call history is an in-process ring buffer (max 100 entries) - it resets on server restart.

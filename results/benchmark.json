@@ -1,0 +1,218 @@
+{
+  "run_info": {
+    "date": "2026-04-27",
+    "n_queries": 10,
+    "note": "Qwen3.5-9B benchmark incomplete: ~12 tok/s on consumer hardware leads to 90-130s per query (>20 min for 10 queries). Haiku results are complete."
+  },
+  "claude-haiku-4-5-20251001": [
+    {
+      "query": "job interview at a law firm, autumn morning,",
+      "occasion": "interview",
+      "latency_ms": 4026,
+      "input_tokens": 1376,
+      "output_tokens": 305,
+      "cost_usd": 0.002321,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "tech startup interview, casual office vibe, s",
+      "occasion": "interview",
+      "latency_ms": 3296,
+      "input_tokens": 1275,
+      "output_tokens": 303,
+      "cost_usd": 0.002232,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "finance internship interview, winter, need to",
+      "occasion": "interview",
+      "latency_ms": 3494,
+      "input_tokens": 1315,
+      "output_tokens": 302,
+      "cost_usd": 0.002262,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": false,
+          "has_reasons": true
+        },
+        "score": 83.3
+      },
+      "error": null
+    },
+    {
+      "query": "second-round interview, creative agency, smar",
+      "occasion": "interview",
+      "latency_ms": 3670,
+      "input_tokens": 1334,
+      "output_tokens": 303,
+      "cost_usd": 0.002278,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "morning interview, cold and rainy, need coat,",
+      "occasion": "interview",
+      "latency_ms": 3956,
+      "input_tokens": 1397,
+      "output_tokens": 301,
+      "cost_usd": 0.002321,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "remote video interview, smart casual, just to",
+      "occasion": "interview",
+      "latency_ms": 3071,
+      "input_tokens": 1228,
+      "output_tokens": 297,
+      "cost_usd": 0.002174,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "panel interview at a prestigious consultancy,",
+      "occasion": "interview",
+      "latency_ms": 3562,
+      "input_tokens": 1295,
+      "output_tokens": 298,
+      "cost_usd": 0.002228,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": false,
+          "has_reasons": true
+        },
+        "score": 83.3
+      },
+      "error": null
+    },
+    {
+      "query": "graduate scheme interview, neutral palette, L",
+      "occasion": "interview",
+      "latency_ms": 4086,
+      "input_tokens": 1406,
+      "output_tokens": 306,
+      "cost_usd": 0.002349,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "romantic dinner, smart casual, spring evening",
+      "occasion": "dinner",
+      "latency_ms": 3184,
+      "input_tokens": 1275,
+      "output_tokens": 297,
+      "cost_usd": 0.002208,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    },
+    {
+      "query": "birthday dinner at a nice restaurant, autumn,",
+      "occasion": "dinner",
+      "latency_ms": 3478,
+      "input_tokens": 1296,
+      "output_tokens": 297,
+      "cost_usd": 0.002225,
+      "quality": {
+        "checks": {
+          "valid_json": true,
+          "has_items": true,
+          "item_count_ok": true,
+          "covers_categories": true,
+          "formality_aligned": true,
+          "has_reasons": true
+        },
+        "score": 100.0
+      },
+      "error": null
+    }
+  ],
+  "qwen/qwen3.5-9b": {
+    "status": "incomplete",
+    "reason": "Consumer hardware generates ~12 tokens/s; 1500-token output budget = ~125s/query. 10 queries would take ~21 minutes. Benchmark was interrupted.",
+    "hardware_finding": "Not suitable for interactive use on consumer hardware. Would be viable on a GPU server or with a smaller model.",
+    "token_throughput_tok_per_sec": 12,
+    "estimated_latency_per_query_s": 125,
+    "estimated_total_10q_min": 21,
+    "quality_note": "Single probe query confirmed /no_think suppresses <think> blocks and model produces valid JSON. However, model tends to hallucinate item IDs not in the candidate list and uses non-standard category names (e.g. 'footwear' instead of 'shoes')."
+  }
+}

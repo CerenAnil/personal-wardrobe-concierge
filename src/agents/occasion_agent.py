@@ -16,20 +16,10 @@ import os
 import re
 from datetime import datetime, timedelta
 
-import anthropic
-
 from src.models.graph_state import GraphState
 from src.models.schemas import OccasionResult
-
-WORKER_MODEL = os.getenv("WORKER_MODEL", "claude-haiku-4-5-20251001")
-_client: anthropic.Anthropic | None = None
-
-
-def _get_client() -> anthropic.Anthropic:
-    global _client
-    if _client is None:
-        _client = anthropic.Anthropic()
-    return _client
+from src.llm.client import chat
+from src.llm.router import get_model
 
 
 # ---------------------------------------------------------------------------
@@ -131,13 +121,13 @@ def run(state: GraphState) -> dict:
 
     # LLM validation
     prompt = _build_prompt(resolved, items_data, repeated_ids)
-    response = _get_client().messages.create(
-        model=WORKER_MODEL,
-        max_tokens=512,
+    raw = chat(
+        model=get_model("occasion"),
         system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
+        user=prompt,
+        max_tokens=512,
+        role="occasion",
     )
-    raw = response.content[0].text
     raw = re.sub(r"```(?:json)?", "", raw).strip()
 
     try:

@@ -98,8 +98,24 @@
 </aside>
 
 <main class="main">
-  <div class="feed" id="messages">
 
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="topbar-btn demo-btn-topbar" id="demoBtn" onclick="app.startDemo()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="3,1 13,7 3,13" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+      Demo
+    </button>
+    <button class="topbar-btn" id="settingsBtn" onclick="app.openSettings()" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      Settings
+    </button>
+  </div>
+
+  <!-- Main feed -->
+  <div class="feed" id="messages">
     <div class="empty-state" id="emptyState">
       <div class="empty-mark">
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -117,10 +133,87 @@
         <button class="prompt-pill" onclick="app.quickFill('wedding guest, summer garden party', 'wedding-guest')">Summer wedding</button>
       </div>
     </div>
-
   </div>
+
+  <!-- Demo overlay + highlight ring -->
+  <div id="demoOverlay"   class="demo-overlay"   hidden></div>
+  <div id="demoHighlight" class="demo-highlight" hidden></div>
+
+  <!-- Demo panel (fixed bottom) -->
+  <div id="demoPanel" class="demo-panel" hidden>
+    <div class="demo-panel-top">
+      <span class="demo-tag"      id="demoTag"></span>
+      <span class="demo-progress" id="demoProgress"></span>
+    </div>
+    <p class="demo-text" id="demoText"></p>
+    <div class="demo-nav">
+      <button class="demo-btn ghost"   id="demoPrevBtn" onclick="app.demoPrev()">&#8592; Prev</button>
+      <button class="demo-btn exit"    onclick="app.stopDemo()">Exit demo</button>
+      <button class="demo-btn primary" id="demoNextBtn" onclick="app.demoNext()">Next &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Settings panel (hidden by default) -->
+  <div class="settings-panel" id="settingsPanel" hidden>
+
+    <div class="settings-header">
+      <div class="settings-title">Settings</div>
+      <button class="settings-close" onclick="app.closeSettings()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="settings-body">
+
+      <!-- Model routing -->
+      <section class="settings-section">
+        <div class="settings-section-title">Outfit Agent Model</div>
+        <div class="settings-section-sub">Controls which model builds your outfit. Local model is free but slower (~2 min). Cloud is fast (~4s) with a small cost.</div>
+        <div class="model-toggle-row">
+          <div class="model-toggle-track" id="modelToggleTrack" onclick="app.toggleOutfitModel()">
+            <div class="model-toggle-thumb" id="modelToggleThumb"></div>
+            <span class="model-toggle-label left" id="toggleLabelCloud">Cloud (Haiku)</span>
+            <span class="model-toggle-label right" id="toggleLabelLocal">Local (Qwen)</span>
+          </div>
+          <div class="model-active-label" id="modelActiveLabel"></div>
+        </div>
+      </section>
+
+      <!-- LLM History -->
+      <section class="settings-section">
+        <div class="settings-section-header">
+          <div>
+            <div class="settings-section-title">LLM Call History</div>
+            <div class="settings-section-sub">All model calls since server start. Click a row to expand the full request and response.</div>
+          </div>
+          <button class="clear-history-btn" onclick="app.clearHistory()">Clear</button>
+        </div>
+        <div class="history-table-wrap" id="historyTableWrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Role</th>
+                <th>Model</th>
+                <th>In</th>
+                <th>Out</th>
+                <th>Cost</th>
+                <th>Latency</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr class="history-empty-row"><td colspan="8">No calls yet — build an outfit to see history.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
 </main>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=4"></script>
 </body>
 </html>
