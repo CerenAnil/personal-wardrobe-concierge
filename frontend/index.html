@@ -131,8 +131,9 @@
     </div>
   </div>
 
-  <!-- Settings panel (hidden by default) -->
-  <div class="settings-panel" id="settingsPanel" hidden>
+  <!-- Settings modal (hidden by default) -->
+  <div class="settings-panel" id="settingsPanel" hidden onclick="if(event.target===this)app.closeSettings()">
+    <div class="settings-dialog">
 
     <div class="settings-header">
       <div class="settings-title">Settings</div>
@@ -188,10 +189,11 @@
       </section>
 
     </div>
-  </div>
+    </div><!-- /.settings-dialog -->
+  </div><!-- /.settings-panel -->
 
 </main>
 
-<script src="/static/app.js?v=5"></script>
+<script src="/static/app.js?v=6"></script>
 </body>
 </html>

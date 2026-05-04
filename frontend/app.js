@@ -376,9 +376,7 @@ function _applyToggleUI(model) {
 }
 
 app.openSettings = async function () {
-  document.getElementById('messages').hidden      = true;
   document.getElementById('settingsPanel').hidden = false;
-  document.getElementById('settingsBtn').style.display = 'none';
 
   // Fetch current routing from server
   try {
@@ -393,8 +391,6 @@ app.openSettings = async function () {
 
 app.closeSettings = function () {
   document.getElementById('settingsPanel').hidden = true;
-  document.getElementById('messages').hidden      = false;
-  document.getElementById('settingsBtn').style.display = '';
 };
 
 app.toggleOutfitModel = async function () {
@@ -476,9 +472,12 @@ function renderHistoryTable(calls) {
 function toggleHistoryRow(idx) {
   const detail = document.getElementById(`detail-${idx}`);
   const row    = document.querySelector(`tr[data-idx="${idx}"]`);
-  const hidden = detail.hidden;
-  detail.hidden = !hidden;
-  row.classList.toggle('expanded', hidden);
+  const wasHidden = detail.hidden;
+  detail.hidden = !wasHidden;
+  row.classList.toggle('expanded', wasHidden);
+  if (wasHidden) {
+    setTimeout(() => detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
 }
 
 function escHtml(str) {
