@@ -34,7 +34,6 @@ A multi-agent AI stylist that knows your wardrobe. Describe an occasion and it b
 - **Per-user memory** - JSON store tracks every approved outfit; avoids repeating items worn for the same occasion within 30 days
 - **Runtime model switching** - Settings toggle swaps between cloud (Haiku) and local (Qwen via LM Studio) without a server restart
 - **LLM call history** - every model call is logged with token counts, cost, and full request/response JSON
-- **Demo mode** - 11-step guided tour covering all 8 course checkpoints with spotlight highlights
 
 ---
 
@@ -282,12 +281,6 @@ python scripts/benchmark_models.py --models claude-haiku-4-5-20251001 --n 10
 # Both models (Qwen requires LM Studio running on port 1234)
 python scripts/benchmark_models.py --n 10 --output results/my_benchmark.json
 ```
-
----
-
-## Demo mode
-
-Click the **Demo** button in the top-right corner to start an 11-step guided tour. The tour auto-submits a live outfit query, spotlights each component as it explains it, and opens Settings automatically for the model routing steps. Steps covered: wardrobe seeding (W5), LangGraph workflow (W6), LLM routing (W7), memory store (W8), HITL gate (W9), weather integration (W10), occasion validation (W11), local model toggle (W12).
 
 ---
 

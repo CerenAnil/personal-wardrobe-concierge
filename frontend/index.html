@@ -101,10 +101,6 @@
 
   <!-- Topbar -->
   <div class="topbar">
-    <button class="topbar-btn demo-btn-topbar" id="demoBtn" onclick="app.startDemo()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="3,1 13,7 3,13" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
-      Demo
-    </button>
     <button class="topbar-btn" id="settingsBtn" onclick="app.openSettings()" title="Settings">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -132,24 +128,6 @@
         <button class="prompt-pill" onclick="app.quickFill('morning gym session', 'gym')">Morning gym</button>
         <button class="prompt-pill" onclick="app.quickFill('wedding guest, summer garden party', 'wedding-guest')">Summer wedding</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Demo overlay + highlight ring -->
-  <div id="demoOverlay"   class="demo-overlay"   hidden></div>
-  <div id="demoHighlight" class="demo-highlight" hidden></div>
-
-  <!-- Demo panel (fixed bottom) -->
-  <div id="demoPanel" class="demo-panel" hidden>
-    <div class="demo-panel-top">
-      <span class="demo-tag"      id="demoTag"></span>
-      <span class="demo-progress" id="demoProgress"></span>
-    </div>
-    <p class="demo-text" id="demoText"></p>
-    <div class="demo-nav">
-      <button class="demo-btn ghost"   id="demoPrevBtn" onclick="app.demoPrev()">&#8592; Prev</button>
-      <button class="demo-btn exit"    onclick="app.stopDemo()">Exit demo</button>
-      <button class="demo-btn primary" id="demoNextBtn" onclick="app.demoNext()">Next &#8594;</button>
     </div>
   </div>
 
@@ -214,6 +192,6 @@
 
 </main>
 
-<script src="/static/app.js?v=4"></script>
+<script src="/static/app.js?v=5"></script>
 </body>
 </html>
