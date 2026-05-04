@@ -82,7 +82,10 @@ body {
   display: flex;
   align-items: center;
   gap: 11px;
+  transition: opacity 0.15s;
 }
+
+.brand:hover { opacity: 0.75; }
 
 .brand-mark {
   width: 34px;
